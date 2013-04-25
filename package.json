@@ -1,0 +1,42 @@
+{
+  "name": "jstrie",
+  "version": "0.0.1",
+  "description": "Simplistic Trie implementation (for fun)",
+  "homepage": "https://github.com/timotheeg/jstrie",
+  "keywords": [
+    "Trie",
+    "search",
+    "word search",
+    "string search"
+  ],
+  "maintainers": [
+    {
+      "name": "Timothee Groleau",
+      "email": "tg@timotheegroleau.com",
+      "web": "http://timotheegroleau.com"
+    } 
+  ],
+  "contributors": [],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/mit-license.php"
+    }
+  ],
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/timotheeg/jstrie"
+    }
+  ],
+  "github": "https://github.com/timotheeg/jstrie",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-cli": "*",
+    "grunt-contrib-jshint": "*",
+    "grunt-contrib-nodeunit": "*"
+  },
+  "scripts": {
+    "test": "node_modules/grunt-cli/bin/grunt test"
+  }
+}
