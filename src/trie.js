@@ -45,8 +45,7 @@ var module_setup = function(undefined)
 		for (var idx=0; idx<len; idx++)
 		{
 			var _char = word.charAt(idx);
-			if (!node[_char]) node[_char] = {};
-			node = node[_char];
+			node = node[_char] || (node[_char] = {});
 		}
 
 		if (!node[META_NAME]) node[META_NAME] = []; // array because you could have duplicate words with different medatata
@@ -59,12 +58,11 @@ var module_setup = function(undefined)
 		var node = this.root, len = word.length;
 		for (var idx=0; idx<len; idx++)
 		{
-			var _char = word.charAt(idx);
-			if (!node[_char])
+			node = node[ word.charAt(idx) ];
+			if (!node)
 			{
 				throw new Error("word not found");
 			}
-			node = node[_char];
 		}
 
 		return node[META_NAME] || [];
