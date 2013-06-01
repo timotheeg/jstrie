@@ -39,7 +39,7 @@ var module_setup = function(undefined)
 
 	p.addWord = function(word, metadata)
 	{
-		if (typeof word !== 'string' || !word) return;
+		if (typeof word !== 'string') return;
 
 		var node = this.root, len = word.length;
 		for (var idx=0; idx<len; idx++)

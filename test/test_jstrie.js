@@ -143,3 +143,25 @@ exports.test_api_behavior = function(test)
 
 	test.done();
 };
+
+exports.test_empty_string = function(test)
+{
+	var t = new Trie(['']);
+
+	test.ok(    t.hasWord('')   );
+	test.ok(    t.hasPrefix('') );
+	test.equal( t.getWordCount(''), 1 );
+
+	t.addWord('');
+	t.addWord('foo');
+
+	test.ok(    t.hasWord('')   );
+	test.ok(    t.hasPrefix('') );
+	test.equal( t.getWordCount(''), 2 );
+
+	test.ok(    t.hasWord('foo')   );
+	test.ok(    t.hasPrefix('foo') );
+	test.equal( t.getWordCount('foo'), 1 );
+
+	test.done();
+};
