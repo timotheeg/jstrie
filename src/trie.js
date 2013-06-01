@@ -1,7 +1,7 @@
 
 var module_setup = function(undefined)
 {
-	var META_NAME = "_$";
+	var META_NAME = "$$"; // 2-chars string to never collide with a single char content
 
 	function isArray(obj)
 	{
@@ -61,7 +61,7 @@ var module_setup = function(undefined)
 			node = node[ word.charAt(idx) ];
 			if (!node)
 			{
-				throw new Error("word not found");
+				throw "not found";
 			}
 		}
 
@@ -70,24 +70,34 @@ var module_setup = function(undefined)
 
 	p.getWordCount = function(word)
 	{
-		var data = [];
-
 		try
 		{
-			data = this.getWordData(word);
+			return this.getWordData(word).length;
 		}
 		catch(e)
 		{
 			// nothing to do here
 			// assume word not found, return value will be 0
+			return 0;
 		}
-
-		return data.length;
 	};
 
 	p.hasWord = function(word)
 	{
 		return this.getWordCount(word) > 0;
+	};
+
+	p.hasPrefix = function(prefix)
+	{
+		try
+		{
+			this.getWordData(prefix);
+			return true;
+		}
+		catch(e)
+		{
+			return false;
+		}
 	};
 
 	p.export = function()
