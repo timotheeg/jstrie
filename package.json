@@ -1,7 +1,7 @@
 {
   "name": "jstrie",
-  "version": "0.0.1",
-  "description": "Simplistic Trie implementation (for fun)",
+  "version": "0.1.0",
+  "description": "Trie implementation",
   "homepage": "https://github.com/timotheeg/jstrie",
   "keywords": [
     "Trie",

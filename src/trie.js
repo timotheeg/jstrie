@@ -8,34 +8,37 @@ var module_setup = function(undefined)
 		return {}.toString.call( obj ) === '[object Array]';
 	}
 
-	var Trie = function(word_collection)
+	function Trie()
 	{
 		this.root = {};
+	}
 
-		if (word_collection) this.build( word_collection );
-	};
-
-	var p = Trie.prototype;
-
-	p.build = function(words)
+	// factory methods
+	Trie.fromWordsArray = function(words)
 	{
-		if (isArray(words))
-		{
-			// iterate over all words and add them to the Trie
-			for (var idx = words.length; idx--;)
-			{
-				this.addWord(words[idx], null);
-			}
-		}
-		else
-		{
-			// assumes hash, where keys are words and value are the metadata
-			for (var word in words)
-			{
-				this.addWord(word, words[word]);
-			}
-		}
+		var t = new Trie();
+		for (var idx = words.length; idx--;) t.addWord(words[idx], null);
+		return t;
 	};
+
+	Trie.fromWordsHash = function(words)
+	{
+		var t = new Trie();
+		for (var word in words) t.addWord(word, words[word]);
+		return t;
+	};
+
+	Trie.fromJSON = function(json_string)
+	{
+		var t = new Trie();
+		t.root = JSON.parse(json_string);
+		return t;
+	};
+
+
+
+	// instance methods
+	var p = Trie.prototype;
 
 	p.addWord = function(word, metadata)
 	{
@@ -53,9 +56,9 @@ var module_setup = function(undefined)
 		node[META_NAME].push(metadata);
 	};
 
-	p.getWordData = function(word)
+	function getTailNode(node, word)
 	{
-		var node = this.root, len = word.length;
+		var len = word.length;
 		for (var idx=0; idx<len; idx++)
 		{
 			node = node[ word.charAt(idx) ];
@@ -64,15 +67,64 @@ var module_setup = function(undefined)
 				throw "not found";
 			}
 		}
+		return node;
+	}
 
-		return node[META_NAME] || [];
+	// returns an array of all metadata associated with a given word
+	// if there's no metadata
+	p.getAllData = function(word)
+	{
+		var node = getTailNode(this.root, word);
+		if (!node[META_NAME]) throw "not found";
+		return node[META_NAME];
 	};
 
-	p.getWordCount = function(word)
+	// returns the FIRST data associated with a given word (convenience function)
+	p.getData = function(word)
+	{
+		return this.getAllData(word)[0];
+	};
+
+	p.removeWord = function(word)
+	{
+		// nodes in our trie are not aware of their parents,
+		// so to remove a word, we need to store the traversed nodes, so we can iterate backward and remove as necessary all nodes which are NOT 
+		var nodes = [this.root], node = this.root, len = word.length;
+		for (var idx=0; idx<len; idx++)
+		{
+			node = node[ word.charAt(idx) ];
+			if (!node) return;
+			nodes.push(node);
+		}
+
+		if ( !node[META_NAME] ) return; // this was never a stored word to start with, so there's nothing to delete
+
+		delete node[META_NAME]; // warning: this removes ALL values stored!!
+
+		do {
+			node = nodes.pop();
+
+			if (node[META_NAME]) break;
+
+			var has_children = false;
+			for (var c in node) if (node.hasOwnProperty(c)) {
+				has_children = true;
+				break;
+			}
+
+			if (has_children) break;
+
+			// no children and not an end of word, tree needs to be trimmed
+			delete nodes[nodes.length-1][word.charAt(nodes.length-1)];
+		}
+		while (nodes.length > 1);
+	};
+
+	p.getCount = function(word)
 	{
 		try
 		{
-			return this.getWordData(word).length;
+			return this.getAllData(word).length;
 		}
 		catch(e)
 		{
@@ -84,14 +136,24 @@ var module_setup = function(undefined)
 
 	p.hasWord = function(word)
 	{
-		return this.getWordCount(word) > 0;
+		try
+		{
+			this.getAllData(word);
+			return true;
+		}
+		catch(e)
+		{
+			// nothing to do here
+			// assume word not found, return value will be 0
+			return false;
+		}
 	};
 
 	p.hasPrefix = function(prefix)
 	{
 		try
 		{
-			this.getWordData(prefix);
+			getTailNode(this.root, prefix);
 			return true;
 		}
 		catch(e)
@@ -100,18 +162,40 @@ var module_setup = function(undefined)
 		}
 	};
 
-	p.export = function()
+	function traverse(node, prefix, res)
+	{
+		if (META_NAME in node) res[prefix] = node[META_NAME].concat();
+		for (var c in node) if (node.hasOwnProperty(c) && c !== META_NAME)
+		{
+			traverse(node[c], prefix + c, res);
+		}
+	}
+
+	p.getWordsFromPrefix = function(prefix)
+	{
+		var res = {};
+		try
+		{
+			var node = getTailNode(this.root, prefix);
+			traverse(node, prefix, res);
+		}
+		catch(e)
+		{
+		}
+
+		return res;
+	};
+
+	p.toJSON = function()
 	{
 		return JSON.stringify(this.root);
 	};
 
-	p.import = function(trie_json)
-	{
-		this.root = trie_json;
-	};
+	p.toString = p.toJSON;
 
 	return Trie;
 };
+
 
 if (typeof module !== "undefined" && module.exports)
 {
