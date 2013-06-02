@@ -82,6 +82,8 @@ exports.test_individual_adds = function(test)
 
 exports.test_data = function(test)
 {
+	/*jshint -W069 */ // suppresses ['ali'] is better written in dot notation.
+
 	var t = new Trie()
 		, inc = 0
 		, data1 = {id: ++inc, dat: 'foo'}
@@ -95,7 +97,20 @@ exports.test_data = function(test)
 	test.strictEqual( t.getData('ali'),             data1 );
 	test.strictEqual( t.getAllData('ali')[0],       data1 );
 	test.strictEqual( t.getAllData('ali')[1],       data2 );
+	test.strictEqual( t.getData('ali-akber'),       data3 );
 	test.strictEqual( t.getAllData('ali-akber')[0], data3 );
+
+	var search_results = t.getWordsFromPrefix('a');
+
+	test.ok( 'ali'       in search_results );
+	test.ok( 'ali-akber' in search_results );
+
+	test.equal( {}.toString.call(search_results['ali']),       '[object Array]');
+	test.equal( {}.toString.call(search_results['ali-akber']), '[object Array]');
+	
+	test.strictEqual(search_results['ali'][0],       data1);
+	test.strictEqual(search_results['ali'][1],       data2);
+	test.strictEqual(search_results['ali-akber'][0], data3);
 
 	test.done();
 };
